@@ -1,0 +1,18 @@
+[project]
+name = "newspaper-crawler"
+version = "0.1.0"
+description = "进行人民日报、四川日报、成都日报等网站的数据爬取"
+authors = [
+    {name = "Fan Guoqing"}
+]
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "requests (>=2.32.3,<3.0.0)",
+    "beautifulsoup4 (>=4.13.4,<5.0.0)"
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
