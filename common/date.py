@@ -17,7 +17,7 @@ def get_date_list(beginDate, endDate):
     end = datetime.datetime.strptime(endDate, "%Y%m%d")
 
     data = []
-    for d in gen_dates(start, (end-start).days):
+    for d in gen_dates(start, (end-start).days + 1):
         data.append(d)
 
     return data

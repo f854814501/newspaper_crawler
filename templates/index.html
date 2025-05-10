@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>报纸爬虫工具</title>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f8f9fa;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+        }
+        h2 {
+            color: #2c3e50;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .form-group {
+            margin-bottom: 25px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 10px;
+            color: #34495e;
+            font-weight: 500;
+        }
+        .checkbox-group {
+            display: grid;
+            gap: 12px;
+        }
+        .checkbox-group label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #2c3e50;
+            cursor: pointer;
+        }
+        .checkbox-group input[type="checkbox"] {
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border: 2px solid #3498db;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .checkbox-group input[type="checkbox"]:checked {
+            background-color: #3498db;
+            border-color: #3498db;
+        }
+        .checkbox-group input[type="checkbox"]:checked::after {
+            content: '✓';
+            color: white;
+            font-size: 14px;
+        }
+        input[type="date"] {
+            padding: 8px 12px;
+            border: 2px solid #bdc3c7;
+            border-radius: 6px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        input[type="date"]:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            width: 100%;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        #progress, #history {
+            background-color: #ecf0f1;
+            border-radius: 6px;
+            padding: 15px;
+            margin-top: 25px;
+        }
+        #history {
+            background-color: #f8f9fa;
+        }
+        #history h3 {
+            color: #34495e;
+            margin-top: 0;
+        }
+        #historyList {
+            list-style: none;
+            padding: 0;
+            margin: 10px 0 0 0;
+        }
+        #historyList li {
+            color: #7f8c8d;
+            padding: 5px 0;
+        }
+    </style></head>
+<body>
+    <div class="container">
+        <h2>报纸爬取设置</h2>
+        <form action="/start_crawl" method="post">
+            <div class="form-group">
+                <label>选择报纸（可多选）：</label>
+                <div class="checkbox-group">
+                    <label>
+                        <input type="checkbox" name="newspaper[]" value="chengdu" checked> 成都日报
+                    </label>
+                    <label>
+                        <input type="checkbox" name="newspaper[]" value="people" checked> 人民日报
+                    </label>
+                    <label>
+                        <input type="checkbox" name="newspaper[]" value="sichuan" checked> 四川日报
+                    </label>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>开始日期：</label>
+                <input type="date" name="beginDate" required>
+            </div>
+            <div class="form-group">
+                <label>结束日期：</label>
+                <input type="date" name="endDate" required>
+            </div>
+            <button type="submit">启动爬取</button>
+        </form>
+        <div id="progress" style="margin-top: 20px; padding: 10px; background-color: #f0f0f0;"></div>
+        <div id="history" style="margin-top: 20px; padding: 10px; background-color: #f0f0f0;">
+            <h3>历史记录</h3>
+            <ul id="historyList"></ul>
+        </div>
+    </div>
+    <script>
+        let progressHistory = [];
+        // 设置默认日期为当天
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = String(today.getMonth() + 1).padStart(2, '0');
+        const day = String(today.getDate()).padStart(2, '0');
+        const todayStr = `${year}-${month}-${day}`;
+        document.querySelector('input[name="beginDate"]').value = todayStr;
+        document.querySelector('input[name="endDate"]').value = todayStr;
+        function updateProgress() {
+            fetch('/get_progress')
+                .then(response => response.json())
+                .then(data => {
+                    // 更新当前进度
+                    document.getElementById('progress').textContent = data.status;
+                    // 添加到历史记录（避免重复）
+                    const currentEntry = `${data.status}`;
+                    if (progressHistory[progressHistory.length - 1] !== currentEntry) {
+                        progressHistory.push(currentEntry);
+                    }
+                    // 渲染历史记录
+                    const historyList = document.getElementById('historyList');
+                    historyList.innerHTML = progressHistory.map(entry => `<li>${entry}</li>`).join('');
+                });
+        }
+        // 页面加载后立即更新，并每1秒更新一次
+        updateProgress();
+        setInterval(updateProgress, 1000);
+    </script>
+    <script>
+    document.querySelector('form').addEventListener('submit', function(e) {
+        e.preventDefault(); // 阻止表单默认提交行为
+        const formData = new FormData(this);
+        fetch('/start_crawl', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.text())
+        .then(result => {
+            // 爬取完成后更新页面提示（不跳转）
+            document.getElementById('progress').textContent = result;
+        });
+    });
+    </script>
+</body>
+</html>
