@@ -51,4 +51,4 @@ def get_progress():
 
 # 添加main函数入口
 if __name__ == '__main__':
-    app.run(debug=True)  # 启动Flask开发服务器（调试模式）
+    app.run(debug=False)  # 启动Flask开发服务器（调试模式）

@@ -124,6 +124,6 @@ if __name__ == '__main__':
 
         download_cdrb(year, month, day, destdir)
         print("爬取完成：" + year + month + day)
-        time.sleep(5)        # 怕被封 IP 爬一爬缓一缓，爬的少的话可以注释掉
+        time.sleep(3)        # 怕被封 IP 爬一爬缓一缓，爬的少的话可以注释掉
 
     lastend = input("本次数据爬取完成!可以关闭软件了")

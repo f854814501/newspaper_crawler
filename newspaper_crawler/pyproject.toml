@@ -1,15 +1,12 @@
 [tool.poetry]
 name = "newspaper-crawler"
 version = "0.1.0"
-description = "进行人民日报、四川日报、成都日报等网站的数据爬取"
+description = ""
 authors = ["fun <854814501@qq.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.12"
-requests = "^2.32.4"
-beautifulsoup4 = "^4.13.4"
-flask = "^3.1.1"
 
 
 [build-system]
